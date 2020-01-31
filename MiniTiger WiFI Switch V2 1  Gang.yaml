@@ -1,0 +1,76 @@
+substitutions:
+  devicename: switch_hallway
+  
+esphome:
+  name: switch_hallway
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: "AK-200"
+  password: "d9Kk74h57f"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Switch Hallway Fallback Hotspot"
+    password: "ucSNP29uo7Gh"
+
+captive_portal:
+
+# Enable logging
+logger:
+  baud_rate: 0
+  
+# Enable Home Assistant API
+api:
+  password: "demo123"
+
+ota:
+  password: "demo123"
+
+#===============================================================================
+time: # Время берем из Home Assistant
+  - platform: homeassistant
+    id: homeassistant_time
+
+#===============================================================================
+binary_sensor:
+  - platform: gpio # кнопка
+    pin:
+      number: GPIO5
+      mode: INPUT_PULLUP
+      inverted: True
+    name: Button ${devicename}
+    on_press:
+      - switch.toggle: relay
+      
+#===============================================================================    
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: IP ${devicename}
+      
+#===============================================================================
+sensor:
+  - platform: wifi_signal # Уровень Wi-Fi сигнала
+    name: Status ${devicename}
+    update_interval: 120s 
+#------------------------------------------------------------------------------
+  - platform: uptime # Время работы после последней перезагрузки
+    name: Uptime ${devicename}
+    
+#===============================================================================
+switch:
+#  - platform: restart # Переключатель для перезагрузки устройства
+#    name: "Restart ${device_name}"   
+#------------------------------------------------------------------------------
+  - platform: gpio  # реле
+    name: Relay ${devicename}
+    pin: GPIO12
+    id: relay
+    
+#===============================================================================
+status_led: # led
+  pin:
+    number: GPIO13
+    inverted: no
